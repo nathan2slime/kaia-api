@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "kaia"
+version = "0.1.0"
+description = "App quiz"
+authors = ["Jhonathan <nathan3boss@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.103.2"
+sqlalchemy = "^2.0.21"
+uvicorn = "^0.23.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

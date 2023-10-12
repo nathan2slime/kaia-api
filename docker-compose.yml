@@ -1,0 +1,11 @@
+services:
+  api:
+    image: kaia.api
+    container_name: kaia.api
+    build:
+      .
+    command: python main.py
+    volumes:
+      - .:/app/
+    ports:
+      - "8000:8000"
