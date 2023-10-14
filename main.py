@@ -9,8 +9,17 @@ from schemas.quiz import Quiz
 from schemas.question import Question
 from schemas.answer import Answer
 from schemas.base import Base
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.post("/create_question")

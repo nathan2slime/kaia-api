@@ -4,12 +4,14 @@ from typing import List
 from schemas.answer import Answer
 import enum
 
+
 class QuestionType(enum.Enum):
     MATH = "MATH"
     PORTUGUESE = "PORTUGUESE"
-    SCIENSE = "SCIENSE"
+    SCIENSE = 'SCIENSE'
     HISTORY = "HISTORY"
     NONE = "NONE"
+
 
 class Question(BaseModel, Base):
     __tablename__ = "questions"

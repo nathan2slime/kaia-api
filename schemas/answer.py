@@ -2,6 +2,7 @@ from schemas.base import BaseModel, Base
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import ForeignKey
 
+
 class Answer(BaseModel, Base):
     __tablename__ = "answers"
 

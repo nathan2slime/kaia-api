@@ -8,3 +8,4 @@ class Quiz(BaseModel, Base):
     username: Mapped[str] = mapped_column()
     type: Mapped[QuestionType] = mapped_column(default=QuestionType.NONE)
     points: Mapped[int] = mapped_column(default=0)
+    time: Mapped[float] = mapped_column(default=0)

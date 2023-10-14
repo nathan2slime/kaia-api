@@ -3,8 +3,10 @@ from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from datetime import datetime, UTC
 
+
 class Base(DeclarativeBase):
     pass
+
 
 class BaseModel:
     def __tablename__(self) -> str:
