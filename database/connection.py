@@ -5,6 +5,7 @@ engine = create_engine("sqlite:///./kaia.db", echo=True, future=True)
 
 session = sessionmaker(bind=engine, expire_on_commit=False, autoflush=False)()
 
+
 def connect():
     conn = session
 
@@ -12,4 +13,3 @@ def connect():
         yield conn
     finally:
         conn.close()
-
