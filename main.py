@@ -59,7 +59,7 @@ async def get_quiz(data: GetQuiz, database: Session = Depends(connect)):
 
 @app.post("/create_quiz")
 async def create_quiz(data: CreateQuiz, database: Session = Depends(connect)):
-    new_quiz = Quiz(username=data.username, points=data.points, type=data.type)
+    new_quiz = Quiz(username=data.username, time=data.time, points=data.points, type=data.type)
 
     database.add(new_quiz)
     database.commit()
