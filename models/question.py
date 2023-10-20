@@ -10,3 +10,5 @@ class CreateQuestion(BaseModel):
     thumb: str | None = None
     type: QuestionType = QuestionType.NONE
     answers: List[CreateAnswer]
+    points: int = 10
+    tip: str | None = None

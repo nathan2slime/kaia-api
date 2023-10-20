@@ -24,7 +24,7 @@ app.add_middleware(
 
 @app.post("/create_question")
 async def create_question(data: CreateQuestion, database: Session = Depends(connect)):
-    new_question = Question(title=data.title, type=data.type, thumb=data.thumb)
+    new_question = Question(title=data.title, tip=data.tip, points=data.points, type=data.type, thumb=data.thumb)
 
     database.add(new_question)
     database.commit()

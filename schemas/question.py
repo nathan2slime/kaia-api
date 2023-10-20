@@ -20,3 +20,5 @@ class Question(BaseModel, Base):
     type: Mapped[QuestionType] = mapped_column(default=QuestionType.NONE)
     thumb: Mapped[str | None] = mapped_column()
     answers: Mapped[List[Answer.__name__]] = relationship()
+    points: Mapped[int] = mapped_column(default=10)
+    tip: Mapped[str | None] = mapped_column()
