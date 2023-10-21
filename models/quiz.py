@@ -9,6 +9,6 @@ class GetQuiz(BaseModel):
 
 class CreateQuiz(BaseModel):
     type: QuestionType = QuestionType.NONE
-    username: str
+    user_id: int
     points: int = 0
     time: float = 0

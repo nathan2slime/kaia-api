@@ -1,4 +1,12 @@
+from typing import Type, Annotated
+
+import bcrypt
 import uvicorn
+import jwt
+import datetime
+from sqlalchemy import update
+from fastapi import FastAPI, Header
+from dotenv import dotenv_values
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func, desc
@@ -6,10 +14,14 @@ from database.connection import connect, engine
 from models.question import CreateQuestion, QuestionType
 from models.quiz import GetQuiz, CreateQuiz
 from schemas.quiz import Quiz
+from models.auth import Login, SignUp
 from schemas.question import Question
 from schemas.answer import Answer
+from schemas.user import User
 from schemas.base import Base
 from fastapi.middleware.cors import CORSMiddleware
+
+env = dotenv_values(".env")
 
 app = FastAPI()
 
@@ -40,6 +52,75 @@ async def create_question(data: CreateQuestion, database: Session = Depends(conn
     return {**question.__dict__, "answers": question.answers}
 
 
+@app.post("/login")
+async def login(data: Login, database: Session = Depends(connect)):
+    try:
+        user: Type[User] = database.query(User).where(User.username == data.username).first()
+
+        if user is None:
+            raise ValueError
+
+        match = bcrypt.checkpw(data.password.encode('utf-8'), user.password)
+
+        if match:
+            token = jwt.encode(
+
+                {"user": user.id, "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1)},
+                env.get("JWT_SECRET"), algorithm="HS256", )
+
+            return {"user": user.__dict__, "token": token}
+        else:
+            raise ValueError
+    except ValueError:
+        return {"error": True, "message": "Invalid credentials"}
+
+
+@app.post("/signup")
+async def signup(data: SignUp, database: Session = Depends(connect)):
+    try:
+        exits = database.query(User).where(User.username == data.username).first()
+
+        if exits is None:
+            password = bcrypt.hashpw(data.password.encode('utf-8'), bcrypt.gensalt())
+
+            user = User(username=data.username, avatar=data.avatar, password=password)
+            database.add(user)
+            database.commit()
+
+            token = jwt.encode(
+                payload={"user": user.id, "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1)},
+                key=env.get("JWT_SECRET"),
+                algorithm="HS256"
+            )
+
+            user.__dict__.pop("password")
+
+            return {"user": user.__dict__, "token": token}
+
+        raise ValueError
+    except ValueError:
+        return {"error": True, "message": "User already exist"}
+
+
+@app.get("/auth")
+async def auth(authorization: Annotated[str | None, Header()] = None, database: Session = Depends(connect)):
+    try:
+        data = jwt.decode(
+            jwt=authorization,
+            key=env.get("JWT_SECRET"),
+            algorithms=["HS256"],
+        )
+        print(data)
+
+        user = database.query(User).where(User.id == data['user']).first()
+        user.__dict__.pop("password")
+
+        return user.__dict__
+    except Exception as e:
+        print(e)
+        return {"error": True, "message": "Session expired"}
+
+
 @app.post("/get_quiz")
 async def get_quiz(data: GetQuiz, database: Session = Depends(connect)):
     global questions
@@ -59,7 +140,7 @@ async def get_quiz(data: GetQuiz, database: Session = Depends(connect)):
 
 @app.post("/create_quiz")
 async def create_quiz(data: CreateQuiz, database: Session = Depends(connect)):
-    new_quiz = Quiz(username=data.username, time=data.time, points=data.points, type=data.type)
+    new_quiz = Quiz(user_id=data.user_id, time=data.time, points=data.points, type=data.type)
 
     database.add(new_quiz)
     database.commit()

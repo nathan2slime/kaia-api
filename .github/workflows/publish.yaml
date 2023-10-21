@@ -24,7 +24,8 @@ jobs:
             cd /root/kaia
             git fetch --all
             git reset origin/master --hard
-            yarn install
+            docker container rm kaia.api --force
+            docker image rm kaia.api:latest
             docker compose down
             docker compose pull
             docker compose up -d
