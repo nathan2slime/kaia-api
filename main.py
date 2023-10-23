@@ -68,6 +68,8 @@ async def login(data: Login, database: Session = Depends(connect)):
                 {"user": user.id, "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1)},
                 env.get("JWT_SECRET"), algorithm="HS256", )
 
+            user.__dict__.pop("password")
+
             return {"user": user.__dict__, "token": token}
         else:
             raise ValueError
