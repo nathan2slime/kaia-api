@@ -34,6 +34,15 @@ app.add_middleware(
 )
 
 
+def generate_token(data: int):
+    token = jwt.encode(
+        {"user": data, 'typ': 'JWT', "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1)},
+        env.get("JWT_SECRET"), algorithm="HS256",
+    )
+
+    return token
+
+
 @app.post("/create_question")
 async def create_question(data: CreateQuestion, database: Session = Depends(connect)):
     new_question = Question(title=data.title, tip=data.tip, points=data.points, type=data.type, thumb=data.thumb)
@@ -63,10 +72,7 @@ async def login(data: Login, database: Session = Depends(connect)):
         match = bcrypt.checkpw(data.password.encode('utf-8'), user.password)
 
         if match:
-            token = jwt.encode(
-
-                {"user": user.id, "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1)},
-                env.get("JWT_SECRET"), algorithm="HS256", )
+            token = generate_token(user.id)
 
             user.__dict__.pop("password")
 
@@ -89,11 +95,7 @@ async def signup(data: SignUp, database: Session = Depends(connect)):
             database.add(user)
             database.commit()
 
-            token = jwt.encode(
-                payload={"user": user.id, "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1)},
-                key=env.get("JWT_SECRET"),
-                algorithm="HS256"
-            )
+            token = generate_token(user.id)
 
             user.__dict__.pop("password")
 
@@ -108,11 +110,10 @@ async def signup(data: SignUp, database: Session = Depends(connect)):
 async def auth(authorization: Annotated[str | None, Header()] = None, database: Session = Depends(connect)):
     try:
         data = jwt.decode(
-            jwt=authorization,
+            str(authorization).encode('utf-8'),
             key=env.get("JWT_SECRET"),
             algorithms=["HS256"],
         )
-        print(data)
 
         user = database.query(User).where(User.id == data['user']).first()
         user.__dict__.pop("password")
