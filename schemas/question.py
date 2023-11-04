@@ -8,8 +8,8 @@ import enum
 class QuestionType(enum.Enum):
     MATH = "MATH"
     PORTUGUESE = "PORTUGUESE"
-    SCIENSE = 'SCIENSE'
-    HISTORY = "HISTORY"
+    SCIENCE = 'SCIENCE'
+    LOGIC = "LOGIC"
     NONE = "NONE"
 
 

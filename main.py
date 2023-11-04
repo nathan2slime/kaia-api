@@ -143,19 +143,37 @@ async def get_quiz(data: GetQuiz, database: Session = Depends(connect)):
 
 @app.post("/create_quiz")
 async def create_quiz(data: CreateQuiz, database: Session = Depends(connect)):
-    new_quiz = Quiz(user_id=data.user_id, time=data.time, points=data.points, type=data.type)
+    exist = (database.query(Quiz).where(Quiz.user_id == data.user_id).first())
+    if exist is not None:
+        exist.points = data.points
+        exist.time = data.time
+        exist.type = data.type
 
-    database.add(new_quiz)
-    database.commit()
+        database.commit()
 
-    return new_quiz
+        return exist
+    else:
+        new_quiz = Quiz(user_id=data.user_id, time=data.time, points=data.points, type=data.type)
+
+        database.add(new_quiz)
+        database.commit()
+
+        return new_quiz
 
 
 @app.get("/ranking")
 async def ranking(database: Session = Depends(connect)):
     history = database.query(Quiz).order_by(desc(Quiz.points)).limit(70)
 
-    return history.all()
+    data = history.all()
+    res = []
+
+    for i in data:
+        user = database.query(User).where(User.id == i.user_id).first()
+
+        res.append({**i.__dict__, "username": user.username, "avatar": user.avatar})
+
+    return res
 
 
 @app.get("/healthcheck")
