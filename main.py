@@ -4,10 +4,8 @@ import bcrypt
 import uvicorn
 import jwt
 import datetime
-from sqlalchemy import update
-from fastapi import FastAPI, Header
 from dotenv import dotenv_values
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Header
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func, desc
 from database.connection import connect, engine
